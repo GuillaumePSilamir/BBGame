@@ -1,17 +1,5 @@
 import Phaser from "phaser";
 
-// Configuration du jeu
-const config = {
-  type: Phaser.AUTO,
-  width: 1024,
-  height: 768,
-  physics: {
-    default: 'arcade',
-    arcade: { gravity: { y: 400 }, debug: false }
-  },
-  scene: [MenuScene, GameScene, UniversityScene, EndingScene, PauseScene]
-};
-
 // État du jeu et histoire
 let gameState = {
   score: 0,
@@ -55,7 +43,7 @@ class MenuScene extends Phaser.Scene {
   create() {
     // Arrière-plan romantique
     this.add.image(512, 384, 'menuBg').setScale(2);
-    
+
     // Titre du jeu avec cœurs
     const title = this.add.text(512, 180, '💖 L\'AVENTURE DE L\'AMOUR 💖', {
       fontSize: '48px',
@@ -118,7 +106,7 @@ class MenuScene extends Phaser.Scene {
     const button = this.add.container(x, y);
     const bg = this.add.rectangle(0, 0, 350, 50, 0xff69b4, 0.8)
       .setStrokeStyle(3, 0xffffff);
-    
+
     const buttonText = this.add.text(0, 0, text, {
       fontSize: '20px',
       fill: '#ffffff',
@@ -126,7 +114,7 @@ class MenuScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     button.add([bg, buttonText]);
-    
+
     bg.setInteractive({ useHandCursor: true })
       .on('pointerover', () => {
         bg.setFillStyle(0xe91e63);
@@ -145,7 +133,7 @@ class MenuScene extends Phaser.Scene {
     const overlay = this.add.rectangle(512, 384, 1024, 768, 0x000000, 0.8);
     const panel = this.add.rectangle(512, 384, 700, 500, 0x2c3e50, 0.95)
       .setStrokeStyle(3, 0xffffff);
-    
+
     this.add.text(512, 200, '📖 L\'HISTOIRE', {
       fontSize: '32px',
       fill: '#ff69b4'
@@ -153,7 +141,7 @@ class MenuScene extends Phaser.Scene {
 
     const storyText = [
       "🚶‍♂️ Chapitre 1: Un homme seul découvre la vie",
-      "🎓 Chapitre 2: Rencontre magique à l'université", 
+      "🎓 Chapitre 2: Rencontre magique à l'université",
       "👫 Chapitre 3: L'amour grandit jour après jour",
       "👶 Chapitre 4: Le plus beau des cadeaux"
     ];
@@ -188,7 +176,7 @@ class MenuScene extends Phaser.Scene {
     const overlay = this.add.rectangle(512, 384, 1024, 768, 0x000000, 0.8);
     const panel = this.add.rectangle(512, 384, 600, 400, 0x2c3e50, 0.95)
       .setStrokeStyle(3, 0xffffff);
-    
+
     this.add.text(512, 250, '💖 CRÉDITS', {
       fontSize: '36px',
       fill: '#ff69b4'
@@ -238,6 +226,8 @@ class GameScene extends Phaser.Scene {
       frameHeight: 48
     });
     // Créer des images colorées pour les objets du jeu
+    // Note: Les images 'chest' et 'monster' sont des images de 1x1 pixel transparentes
+    // Elles sont ensuite transformées en rectangles colorés dans createChests et createMonsters
     this.load.image('chest', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==');
     this.load.image('monster', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==');
   }
@@ -245,7 +235,7 @@ class GameScene extends Phaser.Scene {
   create() {
     // Arrière-plan
     this.add.image(512, 384, 'sky').setScale(1.3);
-    
+
     // Titre du niveau
     this.add.text(512, 50, '🚶‍♂️ Chapitre 1: L\'aventure commence', {
       fontSize: '24px',
@@ -270,7 +260,7 @@ class GameScene extends Phaser.Scene {
 
     // Créer les coffres aux trésors
     this.createChests();
-    
+
     // Créer les petits monstres
     this.createMonsters();
 
@@ -286,7 +276,7 @@ class GameScene extends Phaser.Scene {
 
   createChests() {
     this.chests = this.physics.add.staticGroup();
-    
+
     // Positions des coffres
     const chestPositions = [
       { x: 200, y: 450 },
@@ -297,7 +287,7 @@ class GameScene extends Phaser.Scene {
     chestPositions.forEach((pos, index) => {
       const chest = this.add.rectangle(pos.x, pos.y, 40, 30, 0xffd700)
         .setStrokeStyle(2, 0xff8c00);
-      
+
       // Ajouter un effet de brillance
       const sparkle = this.add.text(pos.x, pos.y - 20, '✨', {
         fontSize: '16px'
@@ -312,22 +302,23 @@ class GameScene extends Phaser.Scene {
         repeat: -1
       });
 
+      // Rendre le coffre interactif au clic
       chest.setInteractive()
         .on('pointerdown', () => this.openChest(chest, sparkle, index));
-      
+
       this.chests.add(chest);
     });
 
-    // Collision avec le joueur
+    // Collision avec le joueur (pour ouvrir le coffre en le touchant)
     this.physics.add.overlap(this.player, this.chests, (player, chest) => {
       const index = this.chests.children.entries.indexOf(chest);
-      this.openChest(chest, null, index);
+      this.openChest(chest, null, index); // Ne pas passer le sparkle si c'est une collision physique
     });
   }
 
   createMonsters() {
     this.monsters = this.physics.add.group();
-    
+
     // Créer quelques petits monstres rigolos
     const monsterPositions = [
       { x: 400, y: 600 },
@@ -335,40 +326,41 @@ class GameScene extends Phaser.Scene {
     ];
 
     monsterPositions.forEach(pos => {
+      // Les monstres sont des textes ici pour la simplicité
       const monster = this.add.text(pos.x, pos.y, '👾', {
         fontSize: '24px'
       }).setOrigin(0.5);
-      
+
       this.physics.add.existing(monster);
       monster.body.setVelocityX(Phaser.Math.Between(-50, 50));
-      monster.body.setBounce(1);
-      monster.body.setCollideWorldBounds(true);
-      
+      monster.body.setBounce(1); // Rebondit sur les bords du monde
+      monster.body.setCollideWorldBounds(true); // Reste dans les limites du monde
+
       this.monsters.add(monster);
     });
 
     // Collision monstre-plateforme
     this.physics.add.collider(this.monsters, this.platforms);
-    
+
     // Collision joueur-monstre
     this.physics.add.overlap(this.player, this.monsters, this.hitMonster, null, this);
   }
 
   openChest(chest, sparkle, index) {
-    if (chest.opened) return;
-    
+    if (chest.opened) return; // Si le coffre est déjà ouvert, ne rien faire
+
     chest.opened = true;
     chest.setFillStyle(0x8B4513); // Marron pour coffre ouvert
-    if (sparkle) sparkle.destroy();
+    if (sparkle) sparkle.destroy(); // Détruit l'effet de brillance si présent
 
     // Afficher le souvenir
     const memory = memories[index] || "💭 Un beau souvenir !";
     this.showMemory(memory);
-    
-    gameState.memories++;
-    gameState.score += 100;
 
-    // Vérifier si tous les coffres sont ouverts
+    gameState.memories++; // Incrémente le nombre de souvenirs trouvés
+    gameState.score += 100; // Ajoute des points
+
+    // Vérifier si tous les coffres sont ouverts pour passer à la scène suivante
     if (gameState.memories >= 3) {
       this.time.delayedCall(3000, () => {
         this.scene.start('UniversityScene');
@@ -379,15 +371,15 @@ class GameScene extends Phaser.Scene {
   showMemory(text) {
     const memoryPanel = this.add.rectangle(512, 150, 600, 80, 0x000000, 0.8)
       .setStrokeStyle(2, 0xffd700);
-    
+
     const memoryText = this.add.text(512, 150, text, {
       fontSize: '18px',
       fill: '#ffdd44',
       fontFamily: 'Arial',
-      wordWrap: { width: 550 }
+      wordWrap: { width: 550 } // Empêche le texte de déborder
     }).setOrigin(0.5);
 
-    // Faire disparaître après 3 secondes
+    // Faire disparaître le panneau de souvenir après 3 secondes
     this.time.delayedCall(3000, () => {
       memoryPanel.destroy();
       memoryText.destroy();
@@ -395,7 +387,7 @@ class GameScene extends Phaser.Scene {
   }
 
   hitMonster(player, monster) {
-    // Effet de clignotement
+    // Effet de clignotement pour le joueur
     this.tweens.add({
       targets: player,
       alpha: 0.5,
@@ -404,9 +396,9 @@ class GameScene extends Phaser.Scene {
       repeat: 3
     });
 
-    gameState.lives--;
+    gameState.lives--; // Le joueur perd une vie
     if (gameState.lives <= 0) {
-      this.gameOver();
+      this.gameOver(); // Fin du jeu si plus de vies
     }
   }
 
@@ -431,16 +423,16 @@ class GameScene extends Phaser.Scene {
           text.destroy();
           currentIndex++;
           if (currentIndex < encouragements.length) {
-            this.time.delayedCall(500, showNext);
+            this.time.delayedCall(500, showNext); // Affiche le prochain message après un court délai
           }
         });
       }
     };
-    showNext();
+    showNext(); // Lance le premier message
   }
 
   createUI() {
-    // Panneau d'interface
+    // Panneau d'interface utilisateur (UI)
     const uiPanel = this.add.rectangle(120, 50, 220, 80, 0x000000, 0.7)
       .setStrokeStyle(2, 0xffffff);
 
@@ -464,8 +456,8 @@ class GameScene extends Phaser.Scene {
       .setStrokeStyle(2, 0xffffff)
       .setInteractive({ useHandCursor: true })
       .on('pointerdown', () => {
-        this.scene.pause();
-        this.scene.launch('PauseScene');
+        this.scene.pause(); // Met la scène de jeu en pause
+        this.scene.launch('PauseScene'); // Lance la scène de pause
       });
 
     this.add.text(950, 50, 'PAUSE', {
@@ -485,7 +477,7 @@ class GameScene extends Phaser.Scene {
     }
 
     if (this.cursors.up.isDown && this.player.body.touching.down) {
-      this.player.setVelocityY(-500);
+      this.player.setVelocityY(-500); // Saut
     }
 
     // Mise à jour de l'interface
@@ -505,7 +497,7 @@ class GameScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     this.time.delayedCall(2000, () => {
-      this.scene.start('MenuScene');
+      this.scene.start('MenuScene'); // Retour au menu principal après un Game Over
     });
   }
 }
@@ -519,7 +511,7 @@ class UniversityScene extends Phaser.Scene {
   create() {
     // Arrière-plan universitaire
     this.add.rectangle(512, 384, 1024, 768, 0x87ceeb);
-    
+
     // Titre
     this.add.text(512, 100, '🎓 À l\'Université - Rencontre Magique', {
       fontSize: '32px',
@@ -528,7 +520,7 @@ class UniversityScene extends Phaser.Scene {
       strokeThickness: 3
     }).setOrigin(0.5);
 
-    // Animation de la rencontre
+    // Animation de la rencontre amoureuse
     this.showLoveStory();
   }
 
@@ -553,25 +545,25 @@ class UniversityScene extends Phaser.Scene {
           strokeThickness: 2
         }).setOrigin(0.5);
 
-        // Effet d'apparition
+        // Effet d'apparition du texte
         text.setAlpha(0);
         this.tweens.add({
           targets: text,
           alpha: 1,
           duration: 1000,
           onComplete: () => {
-            this.time.delayedCall(2000, () => {
+            this.time.delayedCall(2000, () => { // Reste affiché 2 secondes
               this.tweens.add({
                 targets: text,
                 alpha: 0,
-                duration: 500,
+                duration: 500, // Disparaît en 0.5 seconde
                 onComplete: () => {
                   text.destroy();
                   currentScene++;
                   if (currentScene < scenes.length) {
-                    showNextScene();
+                    this.time.delayedCall(500, showNextScene); // Court délai avant la scène suivante
                   } else {
-                    this.showContinueButton();
+                    this.showContinueButton(); // Affiche le bouton "Continuer" à la fin des scènes
                   }
                 }
               });
@@ -581,12 +573,12 @@ class UniversityScene extends Phaser.Scene {
       }
     };
 
-    showNextScene();
+    showNextScene(); // Lance la séquence des scènes d'amour
   }
 
   showContinueButton() {
-    gameState.hasMetGirl = true;
-    
+    gameState.hasMetGirl = true; // Met à jour l'état du jeu
+
     this.add.text(512, 400, '💕 Votre histoire d\'amour commence ! 💕', {
       fontSize: '28px',
       fill: '#ff1493',
@@ -597,7 +589,7 @@ class UniversityScene extends Phaser.Scene {
       .setStrokeStyle(3, 0xffffff)
       .setInteractive({ useHandCursor: true })
       .on('pointerdown', () => {
-        this.scene.start('EndingScene');
+        this.scene.start('EndingScene'); // Passe à la scène finale
       });
 
     this.add.text(512, 500, '✨ DÉCOUVRIR LE TRÉSOR ✨', {
@@ -617,19 +609,19 @@ class EndingScene extends Phaser.Scene {
   create() {
     // Arrière-plan magique
     this.add.rectangle(512, 384, 1024, 768, 0x2c3e50);
-    
-    // Étoiles scintillantes
+
+    // Étoiles scintillantes en arrière-plan
     for (let i = 0; i < 50; i++) {
       const star = this.add.text(
         Phaser.Math.Between(0, 1024),
-        Phaser.Math.Between(0, 400),
+        Phaser.Math.Between(0, 400), // Limité à la partie supérieure pour le ciel
         '✨',
         { fontSize: '12px' }
       );
-      
+
       this.tweens.add({
         targets: star,
-        alpha: 0.3,
+        alpha: 0.3, // Fait scintiller les étoiles
         duration: Phaser.Math.Between(1000, 3000),
         yoyo: true,
         repeat: -1
@@ -645,7 +637,7 @@ class EndingScene extends Phaser.Scene {
       strokeThickness: 4
     }).setOrigin(0.5);
 
-    // Coffre magique final
+    // Coffre magique final (représente le grand secret)
     const finalChest = this.add.rectangle(512, 300, 80, 60, 0xffd700)
       .setStrokeStyle(4, 0xff8c00);
 
@@ -655,17 +647,17 @@ class EndingScene extends Phaser.Scene {
 
     this.tweens.add({
       targets: magicSparkles,
-      y: 230,
+      y: 230, // Fait monter et descendre les étincelles
       duration: 1000,
       yoyo: true,
       repeat: -1
     });
 
-    // Révélation finale
+    // Révélation finale après un délai
     this.time.delayedCall(2000, () => {
-      finalChest.destroy();
+      finalChest.destroy(); // Le coffre disparaît
       magicSparkles.destroy();
-      
+
       const baby = this.add.text(512, 300, '👶', {
         fontSize: '64px'
       }).setOrigin(0.5);
@@ -681,13 +673,13 @@ class EndingScene extends Phaser.Scene {
         fill: '#87ceeb'
       }).setOrigin(0.5);
 
-      // Bouton recommencer
+      // Bouton "Rejouer"
       this.time.delayedCall(3000, () => {
         const restartBtn = this.add.rectangle(512, 550, 250, 50, 0x27ae60)
           .setStrokeStyle(3, 0xffffff)
           .setInteractive({ useHandCursor: true })
           .on('pointerdown', () => {
-            // Reset du jeu
+            // Réinitialise l'état du jeu pour une nouvelle partie
             gameState = {
               score: 0,
               level: 1,
@@ -697,7 +689,7 @@ class EndingScene extends Phaser.Scene {
               foundBaby: false,
               currentStory: 'beginning'
             };
-            this.scene.start('MenuScene');
+            this.scene.start('MenuScene'); // Retour au menu principal
           });
 
         this.add.text(512, 550, '🔄 REJOUER L\'AVENTURE', {
@@ -710,13 +702,14 @@ class EndingScene extends Phaser.Scene {
   }
 }
 
-// Scène de pause (simplifiée)
+// Scène de pause
 class PauseScene extends Phaser.Scene {
   constructor() {
     super({ key: 'PauseScene' });
   }
 
   create() {
+    // Ajoute un fond sombre semi-transparent
     this.add.rectangle(512, 384, 1024, 768, 0x000000, 0.7);
     const panel = this.add.rectangle(512, 384, 400, 300, 0x2c3e50, 0.95)
       .setStrokeStyle(3, 0xffffff);
@@ -726,11 +719,12 @@ class PauseScene extends Phaser.Scene {
       fill: '#ffffff'
     }).setOrigin(0.5);
 
+    // Bouton "Continuer"
     const continueBtn = this.add.rectangle(512, 360, 200, 45, 0x4a90e2)
       .setInteractive({ useHandCursor: true })
       .on('pointerdown', () => {
-        this.scene.stop();
-        this.scene.resume('GameScene');
+        this.scene.stop(); // Arrête la scène de pause
+        this.scene.resume('GameScene'); // Reprend la scène de jeu
       });
 
     this.add.text(512, 360, 'CONTINUER', {
@@ -738,12 +732,13 @@ class PauseScene extends Phaser.Scene {
       fill: '#ffffff'
     }).setOrigin(0.5);
 
+    // Bouton "Menu Principal"
     const menuBtn = this.add.rectangle(512, 420, 200, 45, 0xe74c3c)
       .setInteractive({ useHandCursor: true })
       .on('pointerdown', () => {
-        this.scene.stop();
-        this.scene.stop('GameScene');
-        this.scene.start('MenuScene');
+        this.scene.stop(); // Arrête la scène de pause
+        this.scene.stop('GameScene'); // Arrête aussi la scène de jeu
+        this.scene.start('MenuScene'); // Retourne au menu principal
       });
 
     this.add.text(512, 420, 'MENU PRINCIPAL', {
@@ -752,6 +747,19 @@ class PauseScene extends Phaser.Scene {
     }).setOrigin(0.5);
   }
 }
+
+// Configuration du jeu (doit être après la définition de toutes les classes de scène)
+const config = {
+  type: Phaser.AUTO, // Choisit automatiquement WebGL si disponible, sinon Canvas
+  width: 1024,
+  height: 768,
+  physics: {
+    default: 'arcade', // Moteur physique simple pour les jeux de plateforme
+    arcade: { gravity: { y: 400 }, debug: false } // Gravité vers le bas, désactive le mode debug pour la production
+  },
+  // Liste de toutes les scènes du jeu
+  scene: [MenuScene, GameScene, UniversityScene, EndingScene, PauseScene]
+};
 
 // Lancement du jeu
 new Phaser.Game(config);
