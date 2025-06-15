@@ -15,6 +15,7 @@
   "devDependencies": {
     "phaser": "^3.80.1",
     "vite": "^5.2.0",
-    "cross-env": "^7.0.3" // Assurez-vous que cette ligne est présente après l'installation
+    "cross-env": "^7.0.3" 
   }
+  
 }
