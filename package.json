@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "postinstall": "cross-env if [ \"$VERCEL_ENV\" ]; then chmod +x node_modules/.bin/vite; fi"
+    "postinstall": "npm run setup-permissions",
+    "setup-permissions": "if [ \"$VERCEL_ENV\" ]; then chmod +x node_modules/.bin/vite; else echo \"Skipping permissions setup on local\"; fi"
   },
   "keywords": [],
   "author": "",
@@ -15,7 +16,6 @@
   "devDependencies": {
     "phaser": "^3.80.1",
     "vite": "^5.2.0",
-    "cross-env": "^7.0.3" 
+    "cross-env": "^7.0.3"
   }
-  
 }
