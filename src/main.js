@@ -37,7 +37,7 @@ class MenuScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('menuBg', 'https://labs.phaser.io/assets/skies/gradient.png');
+    this.load.image('menuBg', 'assets/ecran1b.jpeg');
   }
 
   create() {
