@@ -7,8 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "postinstall": "npm run setup-permissions",
-    "setup-permissions": "if [ \"$VERCEL_ENV\" ]; then chmod +x node_modules/.bin/vite; else echo \"Skipping permissions setup on local\"; fi"
+    "postinstall": "node -e \"if (process.env.VERCEL_ENV) { try { require('child_process').execSync('chmod +x node_modules/.bin/vite', { stdio: 'inherit' }); console.log('Permissions set for Vite on Vercel.'); } catch (e) { console.error('Failed to set permissions for Vite:', e.message); process.exit(1); } } else { console.log('Skipping permissions setup on local Windows/non-Vercel environment.'); }\""
   },
   "keywords": [],
   "author": "",
