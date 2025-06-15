@@ -748,17 +748,27 @@ class PauseScene extends Phaser.Scene {
   }
 }
 
-// Configuration du jeu (doit être après la définition de toutes les classes de scène)
+/// Configuration du jeu
 const config = {
-  type: Phaser.AUTO, // Choisit automatiquement WebGL si disponible, sinon Canvas
+  type: Phaser.AUTO,
   width: 1024,
   height: 768,
   physics: {
-    default: 'arcade', // Moteur physique simple pour les jeux de plateforme
-    arcade: { gravity: { y: 400 }, debug: false } // Gravité vers le bas, désactive le mode debug pour la production
+    default: 'arcade',
+    arcade: { gravity: { y: 400 }, debug: false }
   },
-  // Liste de toutes les scènes du jeu
-  scene: [MenuScene, GameScene, UniversityScene, EndingScene, PauseScene]
+  // ===============================================
+  // C'EST CETTE LIGNE QUI DOIT ÊTRE CORRECTE
+  // Elle doit lister les NOMS de vos classes de scène
+  scene: [MenuScene, GameScene, UniversityScene, EndingScene, PauseScene],
+  // ===============================================
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+  },
+  render: {
+    pixelArt: true
+  }
 };
 
 // Lancement du jeu
